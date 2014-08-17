@@ -27,7 +27,6 @@ var reactComponentExpect;
 
 var TestComponent;
 var TestComponentWithPropTypes;
-var TestComponentWithReverseSpec;
 var mixinPropValidator;
 var componentPropValidator;
 
@@ -59,13 +58,6 @@ describe('ReactCompositeComponent-mixin', function() {
       }
     };
 
-    var MixinBWithReverseSpec = {
-      componentDidMount: function() {
-        this.props.listener('MixinBWithReverseSpec didMount');
-      },
-      mixins: [MixinA]
-    };
-
     var MixinC = {
       statics: {
         staticC: function() {}
@@ -95,16 +87,6 @@ describe('ReactCompositeComponent-mixin', function() {
       render: function() {
         return <div />;
       }
-    });
-
-    TestComponentWithReverseSpec = React.createClass({
-      render: function() {
-        return <div />;
-      },
-      componentDidMount: function() {
-        this.props.listener('Component didMount');
-      },
-      mixins: [MixinBWithReverseSpec, MixinC, MixinD]
     });
 
     TestComponentWithPropTypes = React.createClass({
@@ -141,19 +123,6 @@ describe('ReactCompositeComponent-mixin', function() {
     expect(listener.mock.calls).toEqual([
       ['MixinA didMount'],
       ['MixinB didMount'],
-      ['MixinC didMount'],
-      ['Component didMount']
-    ]);
-  });
-
-  it('should chain functions regardless of spec property order', function() {
-    var listener = mocks.getMockFunction();
-    var instance = <TestComponentWithReverseSpec listener={listener} />;
-    instance = ReactTestUtils.renderIntoDocument(instance);
-
-    expect(listener.mock.calls).toEqual([
-      ['MixinA didMount'],
-      ['MixinBWithReverseSpec didMount'],
       ['MixinC didMount'],
       ['Component didMount']
     ]);
