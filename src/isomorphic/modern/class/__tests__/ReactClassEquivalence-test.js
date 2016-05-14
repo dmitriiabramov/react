@@ -11,24 +11,34 @@
 
 'use strict';
 
-var MetaMatchers = require('MetaMatchers');
+var spawnSync = require('child_process').spawnSync;
+var path = require('path');
 
 describe('ReactClassEquivalence', function() {
-
-  beforeEach(function() {
-    this.addMatchers(MetaMatchers);
-  });
-
-  var es6 = () => require('./ReactES6Class-test.js');
-  var coffee = () => require('./ReactCoffeeScriptClass-test.coffee');
-  var ts = () => require('./ReactTypeScriptClass-test.ts');
-
   it('tests the same thing for es6 classes and CoffeeScript', function() {
-    expect(coffee).toEqualSpecsIn(es6);
+    var result1 = runJest('ReactCoffeeScriptClass-test.coffee');
+    var result2 = runJest('ReactES6Class-test.js');
+    compareResults(result1, result2);
   });
 
   it('tests the same thing for es6 classes and TypeScript', function() {
-    expect(ts).toEqualSpecsIn(es6);
+    var result1 = runJest('ReactTypeScriptClass-test.ts');
+    var result2 = runJest('ReactES6Class-test.js');
+    compareResults(result1, result2);
   });
 
 });
+
+function runJest(testFile) {
+  var cwd = process.cwd();
+  var jestBin = path.resolve(cwd, './node_modules/.bin/jest');
+  var result = spawnSync(jestBin, [testFile, '--verbose'], {cwd});
+  expect(result.status).toBe(0);
+  return result.stdout.toString();
+}
+
+function compareResults(a, b) {
+  var aSpecs = (a.match(/it\s.*$/gm) || []).sort().join('\n');
+  var bSpecs = (b.match(/it\s.*$/gm) || []).sort().join('\n');
+  expect(aSpecs).toEqual(bSpecs);
+}
