@@ -31,7 +31,7 @@ function emitEvent(handlerFunctionName, arg1, arg2, arg3, arg4, arg5) {
           handlerDoesThrowForEvent[handlerFunctionName],
           'exception thrown by devtool while handling %s: %s',
           handlerFunctionName,
-          e.message
+          e + '\n' + e.stack
         );
         handlerDoesThrowForEvent[handlerFunctionName] = true;
       }
@@ -236,6 +236,10 @@ var ReactDebugTool = {
     checkDebugID(debugID);
     emitEvent('onSetOwner', debugID, ownerDebugID);
   },
+  onSetParent(debugID, parentDebugID) {
+    checkDebugID(debugID);
+    emitEvent('onSetParent', debugID, parentDebugID);
+  },
   onSetText(debugID, text) {
     checkDebugID(debugID);
     emitEvent('onSetText', debugID, text);
@@ -244,9 +248,17 @@ var ReactDebugTool = {
     checkDebugID(debugID);
     emitEvent('onMountRootComponent', debugID);
   },
+  onBeforeMountComponent(debugID, element) {
+    checkDebugID(debugID);
+    emitEvent('onBeforeMountComponent', debugID, element);
+  },
   onMountComponent(debugID) {
     checkDebugID(debugID);
     emitEvent('onMountComponent', debugID);
+  },
+  onBeforeUpdateComponent(debugID, element) {
+    checkDebugID(debugID);
+    emitEvent('onBeforeUpdateComponent', debugID, element);
   },
   onUpdateComponent(debugID) {
     checkDebugID(debugID);

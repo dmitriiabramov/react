@@ -17,7 +17,6 @@ var EventPluginRegistry = require('EventPluginRegistry');
 var warning = require('warning');
 
 if (__DEV__) {
-  var cachedSource;
   var reactProps = {
     children: true,
     dangerouslySetInnerHTML: true,
@@ -26,7 +25,7 @@ if (__DEV__) {
   };
   var warnedProperties = {};
 
-  var warnUnknownProperty = function(name) {
+  var warnUnknownProperty = function(name, source) {
     if (DOMProperty.properties.hasOwnProperty(name) || DOMProperty.isCustomAttribute(name)) {
       return;
     }
@@ -34,7 +33,9 @@ if (__DEV__) {
         warnedProperties.hasOwnProperty(name) && warnedProperties[name]) {
       return;
     }
-
+    if (EventPluginRegistry.registrationNameModules.hasOwnProperty(name)) {
+      return;
+    }
     warnedProperties[name] = true;
     var lowerCasedName = name.toLowerCase();
 
@@ -54,7 +55,7 @@ if (__DEV__) {
       'Unknown DOM property %s. Did you mean %s? %s',
       name,
       standardName,
-      formatSource(cachedSource)
+      formatSource(source)
     );
 
     var registrationName = (
@@ -70,7 +71,7 @@ if (__DEV__) {
       'Unknown event handler property %s. Did you mean `%s`? %s',
       name,
       registrationName,
-      formatSource(cachedSource)
+      formatSource(source)
     );
   };
 
@@ -80,21 +81,21 @@ if (__DEV__) {
 
 }
 
+function handleElement(element) {
+  if (element == null || typeof element.type !== 'string') {
+    return;
+  }
+  for (var key in element.props) {
+    warnUnknownProperty(key, element._source);
+  }
+}
+
 var ReactDOMUnknownPropertyDevtool = {
-  onCreateMarkupForProperty(name, value) {
-    warnUnknownProperty(name);
+  onBeforeMountComponent(debugID, element) {
+    handleElement(element);
   },
-  onSetValueForProperty(node, name, value) {
-    warnUnknownProperty(name);
-  },
-  onDeleteValueForProperty(node, name) {
-    warnUnknownProperty(name);
-  },
-  onMountDOMComponent(debugID, element) {
-    cachedSource = element ? element._source : null;
-  },
-  onUpdateDOMComponent(debugID, element) {
-    cachedSource = element ? element._source : null;
+  onBeforeUpdateComponent(debugID, element) {
+    handleElement(element);
   },
 };
 

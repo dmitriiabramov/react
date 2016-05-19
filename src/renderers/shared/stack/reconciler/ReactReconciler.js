@@ -46,6 +46,10 @@ var ReactReconciler = {
   ) {
     if (__DEV__) {
       if (internalInstance._debugID !== 0) {
+        ReactInstrumentation.debugTool.onBeforeMountComponent(
+          internalInstance._debugID,
+          internalInstance._currentElement
+        );
         ReactInstrumentation.debugTool.onBeginReconcilerTimer(
           internalInstance._debugID,
           'mountComponent'
@@ -146,6 +150,10 @@ var ReactReconciler = {
 
     if (__DEV__) {
       if (internalInstance._debugID !== 0) {
+        ReactInstrumentation.debugTool.onBeforeUpdateComponent(
+          internalInstance._debugID,
+          nextElement
+        );
         ReactInstrumentation.debugTool.onBeginReconcilerTimer(
           internalInstance._debugID,
           'receiveComponent'
@@ -213,6 +221,10 @@ var ReactReconciler = {
         ReactInstrumentation.debugTool.onBeginReconcilerTimer(
           internalInstance._debugID,
           'performUpdateIfNecessary'
+        );
+        ReactInstrumentation.debugTool.onBeforeUpdateComponent(
+          internalInstance._debugID,
+          internalInstance._currentElement
         );
       }
     }
